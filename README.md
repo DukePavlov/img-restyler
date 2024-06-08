@@ -1,2 +1,2 @@
 # img-restyler
-Image editing by using segmented neural style transfer
+Image editing tool based on principle of segmented neural style transfer
