@@ -5,3 +5,4 @@ Pillow
 PyQt5
 numpy
 h5py
+keras
