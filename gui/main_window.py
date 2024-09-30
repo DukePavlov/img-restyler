@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QLabel, QPushButton, QCheckBox, QComboBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QLabel, QCheckBox, QComboBox
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QRect, Qt, QThread
 import sys
@@ -11,6 +11,8 @@ from matplotlib import cm
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from QLabelFactory import QLabelFactory
+from QPushButtonFactory import QPushButtonFactory
 from segmentation.segmentator import Segmentator
 from style_transfer.restyler import Restyler
 from constants import MAX_ITER_NO, RestyleStatus, restyling_status_msg_map
@@ -31,66 +33,83 @@ class ImageRestyler(QMainWindow):
         self.label = QLabel(self)
         self.label.setGeometry(150, 50, 1000, 1000)
 
-        self.original_image = QLabel(self)
-        self.original_image.setGeometry(QRect(50, 50, 250, 250))
-        self.original_image.setPixmap(QPixmap(None))
-        self.original_image.setScaledContents(True)
-        self.original_image.setObjectName("orig_img")
-        self.original_image.setStyleSheet("background-color:white")
-
-        self.original_image_label = QLabel(self)
-        self.original_image_label.setGeometry(QRect(50, 303, 250, 15))
-        self.original_image_label.setText("Original Image")
-
-        self.style_image = QLabel(self)
-        self.style_image.setGeometry(QRect(350, 50, 250, 250))
-        self.style_image.setPixmap(QPixmap(None))
-        self.style_image.setScaledContents(True)
-        self.style_image.setObjectName("style_img")
-        self.style_image.setStyleSheet("background-color:white")
-
-        self.style_image_label = QLabel(self)
-        self.style_image_label.setGeometry(QRect(350, 303, 250, 15))
-        self.style_image_label.setText("Style Image")
-
-        self.original_image_mask = QLabel(self)
-        self.original_image_mask.setGeometry(QRect(50, 330, 250, 250))
-        self.original_image_mask.setPixmap(QPixmap(None))
-        self.original_image_mask.setScaledContents(True)
-        self.original_image_mask.setObjectName("orig_img_mask")
-        self.original_image_mask.setStyleSheet("background-color:white")
-
-        self.original_image_mask_label = QLabel(self)
-        self.original_image_mask_label.setGeometry(QRect(50, 583, 250, 15))
-        self.original_image_mask_label.setText("Mask of Original image")
-
-        self.result_image = QLabel(self)
-        self.result_image.setGeometry(QRect(540, 350, 400, 400))
-        self.result_image.setPixmap(QPixmap(None))
-        self.result_image.setScaledContents(True)
-        self.result_image.setObjectName("result_img")
-        self.result_image.setStyleSheet("background-color:white")
-
-        self.result_image_label = QLabel(self)
-        self.result_image_label.setGeometry(QRect(540, 753, 400, 15))
-        self.result_image_label.setText('Result Image')
-
-        self.status_lbl = QLabel(self)
-        self.status_lbl.setGeometry(600, 850, 300, 25)
-        self.status_lbl.setAlignment(Qt.AlignCenter)
+        self.original_image = QLabelFactory.create_image_label(
+                                                               parent=self,
+                                                               geometry=(50, 50, 250, 250),
+                                                               object_name='orig_img'
+                                                               )
+        self.original_image_label = QLabelFactory.create_label(
+                                                               parent=self,
+                                                               geometry=(50, 303, 250, 15),
+                                                               text='Original Image'
+        )
+        # Style Image
+        self.style_image = QLabelFactory.create_image_label(
+                                                            parent=self,
+                                                            geometry=(350, 50, 250, 250),
+                                                            object_name='style_img'
+        )
+        self.style_image_label = QLabelFactory.create_label(
+                                                            parent=self,
+                                                            geometry=(350, 303, 250, 15),
+                                                            text='Style Image'
+        )
+        # Mask of Original Image
+        self.original_image_mask = QLabelFactory.create_image_label(
+                                                                    parent=self,
+                                                                    geometry=(50, 330, 250, 250),
+                                                                    object_name='orig_img_mask'
+        )
+        self.original_image_mask_label = QLabelFactory.create_label(
+                                                                    parent=self,
+                                                                    geometry=(50, 583, 250, 15),
+                                                                    text='Mask of Original Image'
+        )
+        # Result Image
+        self.result_image = QLabelFactory.create_image_label(
+                                                             parent=self,
+                                                             geometry=(540, 350, 400, 400),
+                                                             object_name='result_img'
+        )
+        self.result_image_label = QLabelFactory.create_label(
+                                                             parent=self,
+                                                             geometry=(540, 753, 400, 15),
+                                                             text='Result Image'
+        )
+        self.status_lbl = QLabelFactory.create_status_label(
+                                                            parent=self,
+                                                            geometry=(600, 850, 300, 25),
+                                                            text_alignment=Qt.AlignCenter
+        )
         self.set_restyling_status(RestyleStatus.NOT_STARTED.value)
+        # Load Original Content Image Button
+        self.btn_load_original = QPushButtonFactory.create_button(
+                                                                  parent=self,
+                                                                  geometry=(75, 700, 150, 40),
+                                                                  text="Load Original Image",
+                                                                  on_click_handler=self.load_original_image
+        )
+        # Load Style Image Button
+        self.btn_load_style = QPushButtonFactory.create_button(
+                                                               parent=self,
+                                                               geometry=(250, 700, 150, 40),
+                                                               text="Load Style Image",
+                                                               on_click_handler=self.load_style_image
+        )
 
-        self.btn_load = QPushButton('Load Original Image', self)
-        self.btn_load.setGeometry(75, 700, 150, 40)
-        self.btn_load.clicked.connect(self.load_original_image)
+        # Segment Image Button
+        self.btn_segment = QPushButtonFactory.create_button(
+                                                            parent=self,
+                                                            geometry=(75, 800, 150, 40),
+                                                            text="Segment Image", on_click_handler=self.segment_image
+        )
 
-        self.btn_load = QPushButton('Load Style Image', self)
-        self.btn_load.setGeometry(250, 700, 150, 40)
-        self.btn_load.clicked.connect(self.load_style_image)
-        
-        self.btn_segment = QPushButton('Segment Image', self)
-        self.btn_segment.setGeometry(75, 800, 150, 40)
-        self.btn_segment.clicked.connect(self.segment_image)
+        # Apply Style Transfer Button
+        self.btn_style = QPushButtonFactory.create_button(
+                                                          parent=self,
+                                                          geometry=(250, 800, 150, 40),
+                                                          text="Apply Style Transfer", on_click_handler=self.style_transfer
+        )
 
         self.cb_train_iter_no = QComboBox(self)
         self.cb_train_iter_no.setGeometry(QRect(250, 750, 50, 20))
@@ -107,11 +126,6 @@ class ImageRestyler(QMainWindow):
         self.chkbx_invert_mod.setText('Invert mode')
         self.chkbx_invert_mod.setGeometry(QRect(250, 780, 110, 20))
         self.chkbx_invert_mod.stateChanged.connect(self.update_invert_mode)
-        
-        self.btn_style = QPushButton('Apply Style Transfer', self)
-        self.btn_style.setGeometry(250, 800, 150, 40)
-        self.btn_style.clicked.connect(lambda: self.set_restyling_status(RestyleStatus.ACTIVE.value))
-        self.btn_style.clicked.connect(self.style_transfer)
 
 
     def load_original_image(self):
