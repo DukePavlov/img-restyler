@@ -1,1 +1,0 @@
-from segmentation import segmentator as sgm
