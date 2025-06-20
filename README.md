@@ -22,14 +22,10 @@ first install requrements using pip:
     imgrestyle-gui-app
 
 
-# Development plan:
-   1. Create a project structure
-   2. Develop GUI with dummy functions
-   3. Write functions for image loading
-      3.a) Unit test to cover functionality or validation (Additional TODO)
-   4. Write functions for image processing
-      4.a) Cover these with unit test or validation  (Additional TODO)
-   5. Implement functions for model retraining  -- Changed since there is no need for     initialize retraining explicitly, since hyperparameters for training NST are added to  flow, also to GUI in MainWindow, in checkbox and combobox.
+# Further Development plan:
+   1. Unit test to cover functionality or validation (TODO)
+   2. Parallelization of model execution (TODO)
+   3. Parallelize on multiple GPUs
 
 # Git branching strategy:
    1. Main Branch: This is your primary branch where the stable and deployable code resides. You should aim to keep this branch in a releasable state at all times.
